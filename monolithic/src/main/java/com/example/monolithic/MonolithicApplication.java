@@ -1,13 +1,13 @@
-package com.example.distributedtransaction;
+package com.example.monolithic;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DistributedTransactionApplication {
+public class MonolithicApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DistributedTransactionApplication.class, args);
+        SpringApplication.run(MonolithicApplication.class, args);
     }
 
 }
