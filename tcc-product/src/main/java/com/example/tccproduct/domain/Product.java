@@ -18,9 +18,22 @@ public class Product {
 
     private Long price;
 
+    private Long reservedQuantity;
+
     public Product(Long quantity, Long price) {
         this.quantity = quantity;
         this.price = price;
+    }
+
+    public Long reserve(Long requestedQuantity) {
+        long reservableQuantity = this.quantity - this.reservedQuantity;
+
+        if (reservableQuantity < requestedQuantity) {
+            throw new IllegalArgumentException("예약할 수 있는 수량이 부족합니다.");
+        }
+
+        this.reservedQuantity += requestedQuantity;
+        return this.price * requestedQuantity;
     }
 
     public Long calculatePrice(Long quantity) {
