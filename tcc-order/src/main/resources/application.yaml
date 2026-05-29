@@ -1,3 +1,11 @@
 spring:
-  application:
-    name: tcc-order
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/order_example
+    username: root
+    password: 1234

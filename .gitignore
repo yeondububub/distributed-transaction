@@ -39,3 +39,6 @@ out/
 ### ds store ###
 .DS_Store
 **/.DS_Store
+
+### mysql ###
+mysql_data/
