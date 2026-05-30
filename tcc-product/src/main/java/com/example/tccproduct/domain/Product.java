@@ -20,6 +20,9 @@ public class Product {
 
     private Long reservedQuantity;
 
+    @Version
+    private Long version;
+
     public Product(Long quantity, Long price) {
         this.quantity = quantity;
         this.price = price;

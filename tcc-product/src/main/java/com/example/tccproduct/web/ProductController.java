@@ -1,5 +1,6 @@
 package com.example.tccproduct.web;
 
+import com.example.tccproduct.application.ProductFacadeService;
 import com.example.tccproduct.application.ProductService;
 import com.example.tccproduct.application.RedisLockService;
 import com.example.tccproduct.application.dto.ProductReserveResult;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 public class ProductController {
-    private final ProductService productService;
+    private final ProductFacadeService productFacadeService;
     private final RedisLockService redisLockService;
 
     @PostMapping("/product/reserve")
@@ -25,7 +26,7 @@ public class ProductController {
         }
 
         try {
-            ProductReserveResult result = productService.tryReserve(request.toProductReserveCommand());
+            ProductReserveResult result = productFacadeService.tryReserve(request.toProductReserveCommand());
             return new ProductReserveResponse(result.totalPrice());
         } finally {
             redisLockService.releaseLock(key);
