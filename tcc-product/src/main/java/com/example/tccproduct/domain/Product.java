@@ -39,6 +39,14 @@ public class Product {
         return this.price * requestedQuantity;
     }
 
+    public void cancel(Long requestedQuantity) {
+        if (this.reservedQuantity < requestedQuantity) {
+            throw new RuntimeException("예약된 수량이 부족합니다.");
+        }
+
+        this.reservedQuantity -= requestedQuantity;
+    }
+
     public void confirm(Long requestedQuantity) {
         if (this.quantity < requestedQuantity) {
             throw new RuntimeException("재고가 부족합니다.");

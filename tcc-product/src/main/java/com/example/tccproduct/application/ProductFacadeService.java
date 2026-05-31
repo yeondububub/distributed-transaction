@@ -1,5 +1,6 @@
 package com.example.tccproduct.application;
 
+import com.example.tccproduct.application.dto.ProductReserveCancelCommand;
 import com.example.tccproduct.application.dto.ProductReserveCommand;
 import com.example.tccproduct.application.dto.ProductReserveConfirmCommand;
 import com.example.tccproduct.application.dto.ProductReserveResult;
@@ -41,5 +42,20 @@ public class ProductFacadeService {
         }
 
         throw new RuntimeException("예약에 실패했습니다.");
+    }
+
+    public void cancelReserve(ProductReserveCancelCommand commend) {
+        int tryCount = 0;
+
+        while (tryCount < 3) {
+            try {
+                productService.cancelReserve(commend);
+                return;
+            } catch (ObjectOptimisticLockingFailureException e) {
+                tryCount++;
+            }
+        }
+
+        throw new RuntimeException("예약 취소에 실패했습니다.");
     }
 }

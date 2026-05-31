@@ -1,5 +1,6 @@
 package com.example.tccproduct.application;
 
+import com.example.tccproduct.application.dto.ProductReserveCancelCommand;
 import com.example.tccproduct.application.dto.ProductReserveCommand;
 import com.example.tccproduct.application.dto.ProductReserveConfirmCommand;
 import com.example.tccproduct.application.dto.ProductReserveResult;
@@ -68,6 +69,32 @@ public class ProductService {
 
             product.confirm(reservation.getReservedQuantity());
             reservation.confirm();
+
+            productRepository.save(product);
+            productReservationRepository.save(reservation);
+        }
+    }
+
+    @Transactional
+    public void cancelReserve(ProductReserveCancelCommand command) {
+        List<ProductReservation> reservations = productReservationRepository.findAllByRequestId(command.requestId());
+
+        if (reservations.isEmpty()) {
+            throw new RuntimeException("예약된 정보가 없습니다.");
+        }
+
+        boolean alreadyCancel = reservations.stream()
+                .anyMatch(item -> item.getStatus() == ProductReservation.ProductReservationStatus.CANCELED);
+
+        if (alreadyCancel) {
+            throw new RuntimeException("이미 취소된 요청입니다.");
+        }
+
+        for (ProductReservation reservation : reservations) {
+            Product product = productRepository.findById(reservation.getProductId()).orElseThrow();
+
+            product.cancel(reservation.getReservedQuantity());
+            reservation.cancel();
 
             productRepository.save(product);
             productReservationRepository.save(reservation);
