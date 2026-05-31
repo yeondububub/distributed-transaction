@@ -1,6 +1,7 @@
 package com.example.tccproduct.application;
 
 import com.example.tccproduct.application.dto.ProductReserveCommand;
+import com.example.tccproduct.application.dto.ProductReserveConfirmCommand;
 import com.example.tccproduct.application.dto.ProductReserveResult;
 import com.example.tccproduct.domain.Product;
 import com.example.tccproduct.domain.ProductReservation;
@@ -8,6 +9,7 @@ import com.example.tccproduct.infrastructure.ProductRepository;
 import com.example.tccproduct.infrastructure.ProductReservationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -44,4 +46,32 @@ public class ProductService {
 
         return new ProductReserveResult(totalPrice);
     }
+
+    @Transactional
+    public void confirmReserve(ProductReserveConfirmCommand command) {
+        List<ProductReservation> reservations = productReservationRepository.findAllByRequestId(command.requestId());
+
+        if (reservations.isEmpty()) {
+            throw new RuntimeException("예약된 정보가 없습니다.");
+        }
+
+        boolean alreadyConfirm =
+                reservations.stream()
+                        .anyMatch(item -> item.getStatus() == ProductReservation.ProductReservationStatus.CONFIRMED);
+
+        if (alreadyConfirm) {
+            throw new RuntimeException("이미 확정 되었습니다.");
+        }
+
+        for (ProductReservation reservation : reservations) {
+            Product product = productRepository.findById(reservation.getId()).orElseThrow();
+
+            product.confirm(reservation.getReservedQuantity());
+            reservation.confirm();
+
+            productRepository.save(product);
+            productReservationRepository.save(reservation);
+        }
+    }
+
 }

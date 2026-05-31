@@ -1,4 +1,4 @@
-package com.example.tccproduct.web.dto;
+package com.example.tccproduct.controller.dto;
 
 import com.example.tccproduct.application.dto.ProductReserveCommand;
 
