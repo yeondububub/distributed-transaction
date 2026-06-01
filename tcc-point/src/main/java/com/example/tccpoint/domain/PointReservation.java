@@ -1,8 +1,10 @@
 package com.example.tccpoint.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 @Table(name = "point_reservations")
 public class PointReservation {
 
@@ -26,6 +28,14 @@ public class PointReservation {
         this.pointId = pointId;
         this.reservedAmount = reservedAmount;
         this.status = PointReservationStatus.RESERVED;
+    }
+
+    public void confirm() {
+        if (this.status == PointReservationStatus.CANCELLED) {
+            throw new RuntimeException("취소된 예약은 확정할 수 없습니다.");
+        }
+
+        this.status = PointReservationStatus.CONFIRMED;
     }
 
     public enum PointReservationStatus {
