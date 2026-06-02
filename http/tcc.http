@@ -1,0 +1,97 @@
+### [tcc-order] 주문 생성 (Order Try)
+POST http://localhost:8080/order
+Content-Type: application/json
+
+{
+  "orderItems": [
+    {
+      "productId": 1,
+      "quantity": 1
+    },
+    {
+      "productId": 2,
+      "quantity": 2
+    }
+  ]
+}
+
+> {%
+// IntelliJ HTTP Client: Save orderId variable from response for next request
+client.global.set("orderId", response.body.orderId);
+%}
+
+
+
+### [tcc-order] 주문 결제 진행 (TCC Coordinator Orchestration)
+POST http://localhost:8080/order/place
+Content-Type: application/json
+
+{
+  "orderId": {{orderId}}
+}
+
+
+### [tcc-point] 포인트 예약 (Try)
+POST http://localhost:8081/point/reserve
+Content-Type: application/json
+
+{
+  "requestId": "test-request-123",
+  "userId": 1,
+  "reserveAmount": 500
+}
+
+
+### [tcc-point] 포인트 예약 확정 (Confirm)
+POST http://localhost:8081/point/confirm
+Content-Type: application/json
+
+{
+  "requestId": "test-request-123"
+}
+
+
+### [tcc-point] 포인트 예약 취소 (Cancel)
+POST http://localhost:8081/point/cancel
+Content-Type: application/json
+
+{
+  "requestId": "test-request-123"
+}
+
+### [tcc-product] 상품 재고 예약 (Try)
+POST http://localhost:8082/product/reserve
+Content-Type: application/json
+
+{
+  "requestId": "test-request-123",
+  "items": [
+    {
+      "productId": 1,
+      "reserveQuantity": 1
+    },
+    {
+      "productId": 2,
+      "reserveQuantity": 2
+    }
+  ]
+}
+
+
+
+### [tcc-product] 상품 재고 예약 확정 (Confirm)
+POST http://localhost:8082/product/confirm
+Content-Type: application/json
+
+{
+  "requestId": "test-request-123"
+}
+
+
+### [tcc-product] 상품 재고 예약 취소 (Cancel)
+POST http://localhost:8082/product/cancel
+Content-Type: application/json
+
+{
+  "requestId": "test-request-123"
+}

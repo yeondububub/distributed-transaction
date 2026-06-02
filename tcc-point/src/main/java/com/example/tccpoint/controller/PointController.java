@@ -5,11 +5,11 @@ import com.example.tccpoint.application.RedisLockService;
 import com.example.tccpoint.controller.dto.PointReserveCancelRequest;
 import com.example.tccpoint.controller.dto.PointReserveConfirmRequest;
 import com.example.tccpoint.controller.dto.PointReserveRequest;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-@Service
+@RestController
 public class PointController {
 
     private final PointFacadeService pointFacadeService;

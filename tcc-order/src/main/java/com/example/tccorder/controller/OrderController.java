@@ -1,5 +1,6 @@
 package com.example.tccorder.controller;
 
+import com.example.tccorder.application.OrderCoordinator;
 import com.example.tccorder.application.OrderService;
 import com.example.tccorder.application.RedisLockService;
 import com.example.tccorder.application.dto.CreateOrderResult;
@@ -14,10 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
     private final OrderService orderService;
+    private final OrderCoordinator orderCoordinator;
     private final RedisLockService redisLockService;
 
-    public OrderController(OrderService orderService, RedisLockService redisLockService) {
+    public OrderController(OrderService orderService, OrderCoordinator orderCoordinator, RedisLockService redisLockService) {
         this.orderService = orderService;
+        this.orderCoordinator = orderCoordinator;
         this.redisLockService = redisLockService;
     }
 
@@ -31,7 +34,7 @@ public class OrderController {
 
     @PostMapping("/order/place")
     public void placeOrder(@RequestBody PlaceOrderRequest request) {
-        String key = "order:monolithic:" + request.orderId();
+        String key = "order:" + request.orderId();
         boolean acquiredLock = redisLockService.tryLock(key, request.orderId().toString());
 
         if (!acquiredLock) {
@@ -39,7 +42,7 @@ public class OrderController {
         }
 
         try {
-            // TODO: 추가
+            orderCoordinator.placeOrder(request.toCommand());
         } finally {
             redisLockService.releaseLock(key);
         }
