@@ -31,7 +31,9 @@ public class OrderService {
         List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(orderId);
 
         return new OrderDto(
-                orderItems.stream().map(item -> new OrderDto.OrderItem(item.getProductId(), item.getQuantity())).toList()
+                orderItems.stream()
+                        .map(item -> new OrderDto.OrderItem(item.getProductId(), item.getQuantity()))
+                        .toList()
         );
     }
 
@@ -39,8 +41,7 @@ public class OrderService {
     public CreateOrderResult createOrder(CreateOrderCommand command) {
         Order order = orderRepository.save(new Order());
         List<OrderItem> orderItems =
-                command.orderItems()
-                        .stream()
+                command.orderItems().stream()
                         .map(item -> new OrderItem(order.getId(), item.productId(), item.quantity()))
                         .toList();
 

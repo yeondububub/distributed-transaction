@@ -3,6 +3,9 @@ package com.example.tccorder.infrastructure.point;
 import com.example.tccorder.infrastructure.point.dto.PointReserveApiRequest;
 import com.example.tccorder.infrastructure.point.dto.PointReserveCancelApiRequest;
 import com.example.tccorder.infrastructure.point.dto.PointReserveConfirmApiRequest;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 public class PointApiClient {
@@ -13,6 +16,15 @@ public class PointApiClient {
         this.restClient = restClient;
     }
 
+    @Retryable(
+            retryFor = { Exception.class },
+            noRetryFor = {
+                    HttpClientErrorException.BadRequest.class,
+                    HttpClientErrorException.NotFound.class
+            },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 500)
+    )
     public void reservePoint(PointReserveApiRequest request) {
         restClient.post()
                 .uri("/point/reserve")
