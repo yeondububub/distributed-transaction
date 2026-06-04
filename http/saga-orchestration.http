@@ -1,0 +1,17 @@
+### 제품 구매
+POST http://localhost:8082/product/buy
+Content-Type: application/json
+
+{
+  "requestId": "test-request-123",
+  "productInfos": [
+    {
+      "productId": 1,
+      "quantity": 1
+    },
+    {
+      "productId": 2,
+      "quantity": 2
+    }
+  ]
+}
