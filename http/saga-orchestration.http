@@ -33,3 +33,11 @@ Content-Type: application/json
   "userId": 1,
   "amount": 100
 }
+
+### 포인트 사용 취소
+POST http://localhost:8081/point/use/cancel
+Content-Type: application/json
+
+{
+  "requestId": "test-request-101"
+}

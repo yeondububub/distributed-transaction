@@ -1,8 +1,10 @@
 package com.example.sagaorchestrationpoint.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 @Table(name = "point_transaction_histories")
 public class PointTransactionHistory {
 
