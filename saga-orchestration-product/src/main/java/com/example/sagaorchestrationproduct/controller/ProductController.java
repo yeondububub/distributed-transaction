@@ -2,7 +2,10 @@ package com.example.sagaorchestrationproduct.controller;
 
 import com.example.sagaorchestrationproduct.application.ProductService;
 import com.example.sagaorchestrationproduct.application.RedisLockService;
+import com.example.sagaorchestrationproduct.application.dto.ProductBuyCancelResult;
 import com.example.sagaorchestrationproduct.application.dto.ProductBuyResult;
+import com.example.sagaorchestrationproduct.controller.dto.ProductBuyCancelRequest;
+import com.example.sagaorchestrationproduct.controller.dto.ProductBuyCancelResponse;
 import com.example.sagaorchestrationproduct.controller.dto.ProductBuyRequest;
 import com.example.sagaorchestrationproduct.controller.dto.ProductBuyResponse;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +37,24 @@ public class ProductController {
         try {
             ProductBuyResult buyResult = productService.buy(request.toCommand());
             return new ProductBuyResponse(buyResult.totalPrice());
+        } finally {
+            redisLockService.releaseLock(lockKey);
+        }
+    }
+
+    @PostMapping("/product/buy/cancel")
+    public ProductBuyCancelResponse cancel(@RequestBody ProductBuyCancelRequest request) {
+        String lockKey = "product:orchestration:" + request.requestId();
+        boolean lockAcquired = redisLockService.tryLock(lockKey, request.requestId());
+
+        if (!lockAcquired) {
+            System.out.println("락 획득에 실패했습니다.");
+            throw new RuntimeException("락 획득에 실패했습니다.");
+        }
+
+        try {
+            ProductBuyCancelResult cancelResult = productService.cancel(request.toCommand());
+            return new ProductBuyCancelResponse(cancelResult.totalPrice());
         } finally {
             redisLockService.releaseLock(lockKey);
         }

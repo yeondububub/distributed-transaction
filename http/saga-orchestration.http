@@ -1,4 +1,4 @@
-### 제품 구매
+### 재고 차감
 POST http://localhost:8082/product/buy
 Content-Type: application/json
 
@@ -14,4 +14,12 @@ Content-Type: application/json
       "quantity": 2
     }
   ]
+}
+
+### 재고 차감 취소
+POST localhost:8082/product/buy/cancel
+Content-Type: application/json
+
+{
+  "requestId": "test-request-123"
 }

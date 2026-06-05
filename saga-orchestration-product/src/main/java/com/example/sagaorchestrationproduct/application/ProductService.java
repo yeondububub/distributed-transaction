@@ -1,5 +1,7 @@
 package com.example.sagaorchestrationproduct.application;
 
+import com.example.sagaorchestrationproduct.application.dto.ProductBuyCancelCommand;
+import com.example.sagaorchestrationproduct.application.dto.ProductBuyCancelResult;
 import com.example.sagaorchestrationproduct.application.dto.ProductBuyCommand;
 import com.example.sagaorchestrationproduct.application.dto.ProductBuyResult;
 import com.example.sagaorchestrationproduct.domain.Product;
@@ -7,6 +9,7 @@ import com.example.sagaorchestrationproduct.domain.ProductTransactionHistory;
 import com.example.sagaorchestrationproduct.infrastructure.ProductRepository;
 import com.example.sagaorchestrationproduct.infrastructure.ProductTransactionHistoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,6 +23,7 @@ public class ProductService {
         this.productTransactionHistoryRepository = productTransactionHistoryRepository;
     }
 
+    @Transactional
     public ProductBuyResult buy(ProductBuyCommand command) {
         List<ProductTransactionHistory> histories = productTransactionHistoryRepository.findAllByRequestIdAndTransactionType(
                 command.requestId(),
@@ -58,5 +62,51 @@ public class ProductService {
         }
 
         return new ProductBuyResult(totalPrice);
+    }
+
+    @Transactional
+    public ProductBuyCancelResult cancel(ProductBuyCancelCommand command) {
+        List<ProductTransactionHistory> buyHistories = productTransactionHistoryRepository.findAllByRequestIdAndTransactionType(
+                command.requestId(),
+                ProductTransactionHistory.TransactionType.PURCHASE
+        );
+
+        if (buyHistories.isEmpty()) {
+            throw new RuntimeException("구매 이력이 존재하지 않습니다.");
+        }
+
+        List<ProductTransactionHistory> cancelHistories = productTransactionHistoryRepository.findAllByRequestIdAndTransactionType(
+                command.requestId(),
+                ProductTransactionHistory.TransactionType.CANCEL
+        );
+
+        if (!cancelHistories.isEmpty()) {
+            System.out.println("이미 취소 되었습니다.");
+            long totalPrice = cancelHistories.stream()
+                    .mapToLong(ProductTransactionHistory::getPrice)
+                    .sum();
+            return new ProductBuyCancelResult(totalPrice);
+        }
+
+        Long totalPrice = 0L;
+
+        for (ProductTransactionHistory history : buyHistories) {
+            Product product = productRepository.findById(history.getProductId()).orElseThrow();
+
+            product.cancel(history.getQuantity());
+            totalPrice += history.getPrice();
+
+            productTransactionHistoryRepository.save(
+                    new ProductTransactionHistory(
+                            command.requestId(),
+                            history.getProductId(),
+                            history.getQuantity(),
+                            history.getPrice(),
+                            ProductTransactionHistory.TransactionType.CANCEL
+
+                    )
+            );
+        }
+        return new ProductBuyCancelResult(totalPrice);
     }
 }

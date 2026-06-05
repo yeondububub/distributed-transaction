@@ -1,9 +1,11 @@
 package com.example.sagaorchestrationproduct.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 
 @Entity
+@Getter
 @Table(name = "product_transaction_histories")
 public class ProductTransactionHistory {
 
@@ -30,10 +32,6 @@ public class ProductTransactionHistory {
         this.quantity = quantity;
         this.price = price;
         this.transactionType = transactionType;
-    }
-
-    public Long getPrice() {
-        return price;
     }
 
     public enum TransactionType {

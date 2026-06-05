@@ -36,4 +36,7 @@ public class Product {
         this.quantity -= quantity;
     }
 
+    public void cancel(Long quantity) {
+        this.quantity += quantity;
+    }
 }
