@@ -41,3 +41,20 @@ Content-Type: application/json
 {
   "requestId": "test-request-101"
 }
+
+### 주문 생성
+POST http://localhost:8080/order
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 1
+    },
+    {
+      "productId": 2,
+      "quantity": 2
+    }
+  ]
+}
