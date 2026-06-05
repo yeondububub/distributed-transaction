@@ -17,9 +17,19 @@ Content-Type: application/json
 }
 
 ### 재고 차감 취소
-POST localhost:8082/product/buy/cancel
+POST http://localhost:8082/product/buy/cancel
 Content-Type: application/json
 
 {
   "requestId": "test-request-123"
+}
+
+### 포인트 사용
+POST http://localhost:8081/point/use
+Content-Type: application/json
+
+{
+  "requestId": "test-request-101",
+  "userId": 1,
+  "amount": 100
 }
