@@ -1,13 +1,14 @@
-package com.example.sagaorchestrationorder.application;
+package com.example.sagachoreographyorder.application;
 
-import com.example.sagaorchestrationorder.application.dto.OrderDto;
-import com.example.sagaorchestrationorder.application.dto.PlaceOrderCommand;
-import com.example.sagaorchestrationorder.domain.CompensationRegistry;
-import com.example.sagaorchestrationorder.infrastructure.CompensationRegistryRepository;
-import com.example.sagaorchestrationorder.infrastructure.point.PointApiClient;
-import com.example.sagaorchestrationorder.infrastructure.point.PointUseApiRequest;
-import com.example.sagaorchestrationorder.infrastructure.point.PointUseCancelApiRequest;
-import com.example.sagaorchestrationorder.infrastructure.product.*;
+
+import com.example.sagachoreographyorder.application.dto.OrderDto;
+import com.example.sagachoreographyorder.application.dto.PlaceOrderCommand;
+import com.example.sagachoreographyorder.domain.CompensationRegistry;
+import com.example.sagachoreographyorder.infrastructure.CompensationRegistryRepository;
+import com.example.sagachoreographyorder.infrastructure.point.PointApiClient;
+import com.example.sagachoreographyorder.infrastructure.point.PointUseApiRequest;
+import com.example.sagachoreographyorder.infrastructure.point.PointUseCancelApiRequest;
+import com.example.sagachoreographyorder.infrastructure.product.*;
 import org.springframework.stereotype.Component;
 
 @Component

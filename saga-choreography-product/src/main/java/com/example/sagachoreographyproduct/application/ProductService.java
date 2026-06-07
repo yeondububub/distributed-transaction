@@ -1,13 +1,13 @@
-package com.example.sagaorchestrationproduct.application;
+package com.example.sagachoreographyproduct.application;
 
-import com.example.sagaorchestrationproduct.application.dto.ProductBuyCancelCommand;
-import com.example.sagaorchestrationproduct.application.dto.ProductBuyCancelResult;
-import com.example.sagaorchestrationproduct.application.dto.ProductBuyCommand;
-import com.example.sagaorchestrationproduct.application.dto.ProductBuyResult;
-import com.example.sagaorchestrationproduct.domain.Product;
-import com.example.sagaorchestrationproduct.domain.ProductTransactionHistory;
-import com.example.sagaorchestrationproduct.infrastructure.ProductRepository;
-import com.example.sagaorchestrationproduct.infrastructure.ProductTransactionHistoryRepository;
+import com.example.sagachoreographyproduct.application.dto.ProductBuyCancelCommand;
+import com.example.sagachoreographyproduct.application.dto.ProductBuyCancelResult;
+import com.example.sagachoreographyproduct.application.dto.ProductBuyCommand;
+import com.example.sagachoreographyproduct.application.dto.ProductBuyResult;
+import com.example.sagachoreographyproduct.domain.Product;
+import com.example.sagachoreographyproduct.domain.ProductTransactionHistory;
+import com.example.sagachoreographyproduct.infrastructure.ProductRepository;
+import com.example.sagachoreographyproduct.infrastructure.ProductTransactionHistoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

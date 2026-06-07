@@ -1,13 +1,12 @@
-package com.example.sagaorchestrationorder.controller;
+package com.example.sagachoreographyorder.controller;
 
-import com.example.sagaorchestrationorder.application.OrderCoordinator;
-import com.example.sagaorchestrationorder.application.OrderService;
-import com.example.sagaorchestrationorder.application.RedisLockService;
-import com.example.sagaorchestrationorder.application.dto.CreateOrderResult;
-import com.example.sagaorchestrationorder.controller.dto.CreateOrderRequest;
-import com.example.sagaorchestrationorder.controller.dto.CreateOrderResponse;
-import com.example.sagaorchestrationorder.controller.dto.PlaceOrderRequest;
-import com.example.sagaorchestrationorder.infrastructure.OrderItemRepository;
+import com.example.sagachoreographyorder.application.OrderCoordinator;
+import com.example.sagachoreographyorder.application.OrderService;
+import com.example.sagachoreographyorder.application.RedisLockService;
+import com.example.sagachoreographyorder.application.dto.CreateOrderResult;
+import com.example.sagachoreographyorder.controller.dto.CreateOrderRequest;
+import com.example.sagachoreographyorder.controller.dto.CreateOrderResponse;
+import com.example.sagachoreographyorder.controller.dto.PlaceOrderRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
