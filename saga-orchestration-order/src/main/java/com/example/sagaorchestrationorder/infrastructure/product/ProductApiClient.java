@@ -20,7 +20,7 @@ public class ProductApiClient {
     public ProductBuyApiResponse buy(ProductBuyApiRequest request) {
         return restClient
                 .post()
-                .uri("/products/buy")
+                .uri("/product/buy")
                 .body(request)
                 .retrieve()
                 .body(ProductBuyApiResponse.class);

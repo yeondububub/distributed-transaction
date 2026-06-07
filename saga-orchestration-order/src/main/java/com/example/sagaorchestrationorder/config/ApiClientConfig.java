@@ -13,7 +13,7 @@ public class ApiClientConfig {
     public PointApiClient pointApiClient() {
         return new PointApiClient(
                 RestClient.builder()
-                        .baseUrl("http://localhost:8082")
+                        .baseUrl("http://localhost:8081")
                         .build()
         );
     }
@@ -22,7 +22,7 @@ public class ApiClientConfig {
     public ProductApiClient productApiClient() {
         return new ProductApiClient(
                 RestClient.builder()
-                        .baseUrl("http://localhost:8081")
+                        .baseUrl("http://localhost:8082")
                         .build()
         );
     }

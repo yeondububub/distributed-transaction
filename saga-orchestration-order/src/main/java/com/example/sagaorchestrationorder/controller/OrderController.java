@@ -1,9 +1,13 @@
 package com.example.sagaorchestrationorder.controller;
 
+import com.example.sagaorchestrationorder.application.OrderCoordinator;
 import com.example.sagaorchestrationorder.application.OrderService;
+import com.example.sagaorchestrationorder.application.RedisLockService;
 import com.example.sagaorchestrationorder.application.dto.CreateOrderResult;
 import com.example.sagaorchestrationorder.controller.dto.CreateOrderRequest;
 import com.example.sagaorchestrationorder.controller.dto.CreateOrderResponse;
+import com.example.sagaorchestrationorder.controller.dto.PlaceOrderRequest;
+import com.example.sagaorchestrationorder.infrastructure.OrderItemRepository;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,9 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderController {
 
     private final OrderService orderService;
+    private final OrderCoordinator orderCoordinator;
+    private final RedisLockService redisLockService;
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, OrderCoordinator orderCoordinator, RedisLockService redisLockService) {
         this.orderService = orderService;
+        this.orderCoordinator = orderCoordinator;
+        this.redisLockService = redisLockService;
     }
 
     @PostMapping("/order")
@@ -22,5 +30,21 @@ public class OrderController {
         CreateOrderResult result = orderService.createOrder(request.toCommand());
 
         return new CreateOrderResponse(result.orderId());
+    }
+
+    @PostMapping("/order/place")
+    public void placeORder(@RequestBody PlaceOrderRequest request) {
+        String lockKey = "order:" + request.orderId();
+        boolean lockAcquired = redisLockService.tryLock(lockKey, request.orderId().toString());
+
+        if (!lockAcquired) {
+            throw new RuntimeException("락 획득에 실패하였습니다.");
+        }
+
+        try {
+            orderCoordinator.placeOrder(request.toCommand());
+        } finally {
+            redisLockService.releaseLock(lockKey);
+        }
     }
 }
