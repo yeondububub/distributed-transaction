@@ -55,6 +55,9 @@ public class OrderCoordinator {
             }
 
             orderService.fail(command.orderId());
+
+            // TODO 강제 예외 발생 코드
+            throw e;
         }
     }
 }

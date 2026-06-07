@@ -45,6 +45,9 @@ public class PointService {
                 command.amount(),
                 PointTransactionHistory.TransactionType.USE
         ));
+
+        // TODO: 강제 예외 발생
+        throw new RuntimeException("=== 강제 예외 발생!!! ===");
     }
 
     @Transactional
