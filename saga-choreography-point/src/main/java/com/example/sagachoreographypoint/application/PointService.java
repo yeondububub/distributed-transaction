@@ -9,6 +9,8 @@ import com.example.sagachoreographypoint.infrastructure.PointTransactionHistoryR
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Service
 public class PointService {
 
@@ -47,7 +49,10 @@ public class PointService {
         ));
 
         // TODO: 강제 예외 발생
-        throw new RuntimeException("=== 강제 예외 발생!!! ===");
+        if (Integer.valueOf(command.requestId()) % 2 == 0) {
+            System.out.println("===========================");
+            throw new RuntimeException("=== 강제 예외 발생!!! ===");
+        }
     }
 
     @Transactional

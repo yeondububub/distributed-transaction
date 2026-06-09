@@ -1,0 +1,29 @@
+### 주문 생성
+POST http://localhost:8080/order
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 1
+    },
+    {
+      "productId": 2,
+      "quantity": 5
+    }
+  ]
+}
+
+> {%
+    // IntelliJ HTTP Client: Save orderId variable from response for next request
+    client.global.set("orderId", response.body.orderId);
+%}
+
+### 주문 결제 진행
+POST http://localhost:8080/order/place
+Content-Type: application/json
+
+{
+  "orderId": {{orderId}}
+}
