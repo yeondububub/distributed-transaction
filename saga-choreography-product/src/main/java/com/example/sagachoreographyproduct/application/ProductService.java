@@ -72,7 +72,15 @@ public class ProductService {
         );
 
         if (buyHistories.isEmpty()) {
-            throw new RuntimeException("구매 이력이 존재하지 않습니다.");
+            System.out.println("구매 이력이 존재하지 않아 취소 처리를 생략합니다. (requestId: " + command.requestId() + ")");
+            return new ProductBuyCancelResult(0L);
+        }
+
+        // 강제 예외 테스트: 취소할 수량이 88개인 경우 강제 예외 발생 (보상 트랜잭션 자체 실패 테스트)
+        for (ProductTransactionHistory history : buyHistories) {
+            if (history.getQuantity() == 88L) {
+                throw new RuntimeException("[강제 예외] 상품 서비스 보상 트랜잭션(취소) 중 오류 발생");
+            }
         }
 
         List<ProductTransactionHistory> cancelHistories = productTransactionHistoryRepository.findAllByRequestIdAndTransactionType(
@@ -106,12 +114,6 @@ public class ProductService {
 
                     )
             );
-        }
-
-        // TODO: 강제 예외 발생 코드
-        if (Integer.valueOf(command.requestId()) % 2 == 0) {
-            System.out.println("===========================");
-            throw new RuntimeException("강제로 예외 발생");
         }
 
         return new ProductBuyCancelResult(totalPrice);

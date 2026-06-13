@@ -1,4 +1,8 @@
-### 주문 생성
+// ==========================================
+// 1. [성공 흐름] 정상 주문 및 결제 완료 (Success Flow)
+// ==========================================
+
+### 1-1. 주문 생성 (총 금액 500원 - 상품 1, 2 재고 및 포인트 충분)
 POST http://localhost:8080/order
 Content-Type: application/json
 
@@ -10,23 +14,246 @@ Content-Type: application/json
     },
     {
       "productId": 2,
-      "quantity": 5
+      "quantity": 2
     }
   ]
 }
 
 > {%
-    // IntelliJ HTTP Client: Save orderId variable from response for next request
-    client.global.set("orderId", response.body.orderId);
+    // IntelliJ HTTP Client: 다음 요청을 위해 생성된 orderId를 글로벌 변수로 저장
+    client.global.set("successOrderId", response.body.orderId);
 %}
 
-### 주문 결제 진행
+### 1-2. 주문 결제 진행 (Saga Choreography 흐름 시작)
 POST http://localhost:8080/order/place
 Content-Type: application/json
 
 {
-  "orderId": {{orderId}}
+  "orderId": {{successOrderId}}
 }
 
-### 주문 상태 조회
-GET http://localhost:8080/order/{{orderId}}/status
+### 1-3. 주문 상태 조회 (결과: COMPLETED 예상)
+GET http://localhost:8080/order/{{successOrderId}}/status
+
+
+// ==========================================
+// 2. [실패 흐름 - 재고 부족] 상품 재고 수량 초과 주문 (Out of Stock Flow)
+// ==========================================
+
+### 2-1. 주문 생성 (Product 1 재고 100개 초과하여 150개 주문)
+POST http://localhost:8080/order
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 150
+    }
+  ]
+}
+
+> {%
+    client.global.set("outOfStockOrderId", response.body.orderId);
+%}
+
+### 2-2. 주문 결제 진행 (재고 부족 실패 및 롤백 유도)
+POST http://localhost:8080/order/place
+Content-Type: application/json
+
+{
+  "orderId": {{outOfStockOrderId}}
+}
+
+### 2-3. 주문 상태 조회 (결과: FAILED 예상)
+GET http://localhost:8080/order/{{outOfStockOrderId}}/status
+
+
+// ==========================================
+// 3. [실패 흐름 - 포인트 부족] 포인트 잔액 초과 주문 (Insufficient Points Flow)
+// ==========================================
+// 포인트 초기 잔액은 10,000원입니다.
+// Product 1: 50개 (5,000원) + Product 2: 30개 (6,000원) = 총 11,000원 주문으로 포인트 부족을 유도합니다.
+// 이 경우, 상품 재고는 먼저 차감된 뒤 포인트 결제 실패로 인해 상품 재고 복구(보상 트랜잭션)가 일어납니다.
+
+### 3-1. 주문 생성
+POST http://localhost:8080/order
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 50
+    },
+    {
+      "productId": 2,
+      "quantity": 30
+    }
+  ]
+}
+
+> {%
+    client.global.set("insufficientPointsOrderId", response.body.orderId);
+%}
+
+### 3-2. 주문 결제 진행
+POST http://localhost:8080/order/place
+Content-Type: application/json
+
+{
+  "orderId": {{insufficientPointsOrderId}}
+}
+
+### 3-3. 주문 상태 조회 (결과: FAILED 예상)
+GET http://localhost:8080/order/{{insufficientPointsOrderId}}/status
+
+
+// ==========================================
+// 4. [실패 흐름 - 존재하지 않는 상품] 존재하지 않는 상품 주문 (Non-existent Product)
+// ==========================================
+
+### 4-1. 주문 생성 (존재하지 않는 상품 ID 9999 주문)
+POST http://localhost:8080/order
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "productId": 9999,
+      "quantity": 1
+    }
+  ]
+}
+
+> {%
+    client.global.set("nonExistentProductOrderId", response.body.orderId);
+%}
+
+### 4-2. 주문 결제 진행
+POST http://localhost:8080/order/place
+Content-Type: application/json
+
+{
+  "orderId": {{nonExistentProductOrderId}}
+}
+
+### 4-3. 주문 상태 조회 (결과: FAILED 예상)
+GET http://localhost:8080/order/{{nonExistentProductOrderId}}/status
+
+
+// ==========================================
+// 5. [강제 예외 테스트 - Point 사용 실패 / 보상 성공]
+// ==========================================
+// 특정 수량(99개)을 주문하여 결제 금액이 9,900원이 되면, PointService.use()에서 강제로 예외를 발생시킵니다.
+// - 이 흐름에서는 상품 재고 차감이 먼저 성공하고, 포인트 차감 실패 후, 상품 재고 복구(보상 트랜잭션)가 최종적으로 성공해야 합니다.
+
+### 5-1. 주문 생성 (Product 1 수량 99개 -> 총 금액 9,900원)
+POST http://localhost:8080/order
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 99
+    }
+  ]
+}
+
+> {%
+    client.global.set("pointFailSuccessOrderId", response.body.orderId);
+%}
+
+### 5-2. 주문 결제 진행 (Point 사용 실패 유도 및 상품 재고 복구 성공 확인)
+POST http://localhost:8080/order/place
+Content-Type: application/json
+
+{
+  "orderId": {{pointFailSuccessOrderId}}
+}
+
+### 5-3. 주문 상태 조회 (결과: FAILED 예상)
+GET http://localhost:8080/order/{{pointFailSuccessOrderId}}/status
+
+
+// ==========================================
+// 6. [강제 예외 테스트 - Product 취소 실패 / 보상 실패]
+// ==========================================
+// 특정 수량(88개)을 주문하여 결제 금액이 8,800원이 되면:
+// 1) PointService.use()에서 강제 예외가 발생해 보상 트랜잭션이 시작됩니다.
+// 2) ProductService.cancel()에서 취소할 수량이 88개인 것을 확인하고 강제로 예외를 발생시킵니다.
+// - 보상 트랜잭션이 최종 실패하여 데이터 정합성이 깨진 상태로 남아 로그에 계속 예외 및 재시도 로그가 쌓이게 됩니다. (최종 주문 상태는 여전히 REQUESTED로 남아있음)
+
+### 6-1. 주문 생성 (Product 1 수량 88개 -> 총 금액 8,800원)
+POST http://localhost:8080/order
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 88
+    }
+  ]
+}
+
+> {%
+    client.global.set("compensationFailOrderId", response.body.orderId);
+%}
+
+### 6-2. 주문 결제 진행 (보상 트랜잭션 취소 단계에서 강제 예외 유도)
+POST http://localhost:8080/order/place
+Content-Type: application/json
+
+{
+  "orderId": {{compensationFailOrderId}}
+}
+
+### 6-3. 주문 상태 조회 (보상 실패로 인해 REQUESTED 상태에서 정체됨)
+GET http://localhost:8080/order/{{compensationFailOrderId}}/status
+
+
+// ==========================================
+// 7. [개별 서비스 API 직접 호출] Product 및 Point 단독 테스트
+// ==========================================
+
+### 7-1. [Product] 상품 재고 차감 직접 호출
+POST http://localhost:8082/product/buy
+Content-Type: application/json
+
+{
+  "requestId": "direct-test-req-001",
+  "productInfos": [
+    {
+      "productId": 1,
+      "quantity": 2
+    }
+  ]
+}
+
+### 7-2. [Product] 상품 재고 차감 취소 직접 호출
+POST http://localhost:8082/product/buy/cancel
+Content-Type: application/json
+
+{
+  "requestId": "direct-test-req-001"
+}
+
+### 7-3. [Point] 포인트 사용 직접 호출
+POST http://localhost:8081/point/use
+Content-Type: application/json
+
+{
+  "requestId": "direct-test-req-002",
+  "userId": 1,
+  "amount": 1000
+}
+
+### 7-4. [Point] 포인트 사용 취소 직접 호출
+POST http://localhost:8081/point/use/cancel
+Content-Type: application/json
+
+{
+  "requestId": "direct-test-req-002"
+}

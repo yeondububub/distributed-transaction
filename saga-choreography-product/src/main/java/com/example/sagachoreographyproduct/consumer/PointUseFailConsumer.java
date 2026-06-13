@@ -23,7 +23,7 @@ public class PointUseFailConsumer {
             topics = "point-use-fail",
             groupId = "point-use-fail-comsumer",
             properties = {
-                    "spring.json.value.defalut.type=com.example.sagachoreographyproduct.consumer.dto.PointUseFailEvent"
+                    "spring.json.value.default.type=com.example.sagachoreographyproduct.consumer.dto.PointUseFailEvent"
             }
     )
     public void handle(PointUseFailEvent event) {

@@ -40,6 +40,11 @@ public class PointService {
             throw new RuntimeException("포인트가 존재하지 않습니다.");
         }
 
+        // 강제 예외 테스트: 결제 금액이 9900원(보상 트랜잭션 성공 테스트) 또는 8800원(보상 트랜잭션 실패 테스트)인 경우 강제 예외 발생
+        if (command.amount() == 9900L || command.amount() == 8800L) {
+            throw new RuntimeException("[강제 예외] 포인트 서비스 사용 중 오류 발생 (금액: " + command.amount() + ")");
+        }
+
         point.use(command.amount());
         pointTransactionHistoryRepository.save(new PointTransactionHistory(
                 command.requestId(),
@@ -47,12 +52,6 @@ public class PointService {
                 command.amount(),
                 PointTransactionHistory.TransactionType.USE
         ));
-
-        // TODO: 강제 예외 발생
-        if (Integer.valueOf(command.requestId()) % 2 == 0) {
-            System.out.println("===========================");
-            throw new RuntimeException("=== 강제 예외 발생!!! ===");
-        }
     }
 
     @Transactional
@@ -63,7 +62,8 @@ public class PointService {
         );
 
         if (useHistory == null) {
-            throw new RuntimeException("포인트 사용내역이 없습니다.");
+            System.out.println("포인트 사용 내역이 존재하지 않아 취소 처리를 생략합니다. (requestId: " + command.requestId() + ")");
+            return;
         }
 
         PointTransactionHistory cancelHistory = pointTransactionHistoryRepository.findByRequestIdAndTransactionType(
