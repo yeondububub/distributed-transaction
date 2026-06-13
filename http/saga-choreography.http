@@ -27,3 +27,6 @@ Content-Type: application/json
 {
   "orderId": {{orderId}}
 }
+
+### 주문 상태 조회
+GET http://localhost:8080/order/{{orderId}}/status

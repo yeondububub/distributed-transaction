@@ -7,9 +7,8 @@ import com.example.sagachoreographyorder.application.dto.CreateOrderResult;
 import com.example.sagachoreographyorder.controller.dto.CreateOrderRequest;
 import com.example.sagachoreographyorder.controller.dto.CreateOrderResponse;
 import com.example.sagachoreographyorder.controller.dto.PlaceOrderRequest;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.sagachoreographyorder.domain.Order;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class OrderController {
@@ -46,5 +45,10 @@ public class OrderController {
         } finally {
             redisLockService.releaseLock(lockKey);
         }
+    }
+
+    @GetMapping("/order/{id}/status")
+    public Order.OrderStatus getStatus(@PathVariable Long id) {
+        return orderService.getStatus(id);
     }
 }
